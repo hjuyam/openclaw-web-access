@@ -21,7 +21,7 @@
 
 ## web-access
 
-Claude Code 原生不联网，web-access 补上了这块能力。灵感来自 OpenClaw 的联网流程，翻译成 CC skill 后日常直接用。
+Claude Code 原生有联网能力，但降级策略不完善，也不支持持久化登录。web-access 在原有基础上补全了整个联网操作链路。灵感来自 OpenClaw 的联网流程，翻译成 CC skill 后日常直接用。
 
 遇到联网任务时自动按代价从低到高选择方式：
 
