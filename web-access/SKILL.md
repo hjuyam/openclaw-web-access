@@ -1,12 +1,26 @@
 ---
 name: web-access
-version: 1.0.0
+version: 1.1.0
 author: 一泽Eze
 license: MIT
 github: https://github.com/eze-is-1/eze-skills
 description: |
   所有联网操作必须通过此 skill 处理，包括：搜索、网页抓取、登录后操作、动态页面交互等。
   触发场景：用户要求搜索信息、查看网页内容、访问需要登录的网站、操作网页界面、抓取社交媒体内容（小红书、微博、推特等）、读取动态渲染页面、以及任何需要真实浏览器环境的网络任务。
+changelog:
+  - version: 1.1.0
+    date: 2026-03-10
+    changes:
+      - 新增"浏览哲学"框架：三个核心判断（我需要什么/够了吗/遇到阻碍怎么办）
+      - 社交媒体/内容平台直走浏览器 CDP，跳过 WebFetch
+      - 新增视频内容采帧分析能力（seek + screenshot）
+      - 完善 already-running 状态处理：必须验证后才能使用
+      - 细化 wait 命令使用时机说明
+      - 新增 screenshot --annotate 作为 snapshot -i 失效时的升级方案
+  - version: 1.0.0
+    date: 2025-01-01
+    changes:
+      - 初始版本
 ---
 
 # web-access Skill
