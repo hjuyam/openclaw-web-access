@@ -1,65 +1,37 @@
-# eze-skills
+# openclaw-web-access
 
-一泽Eze 的 Claude Code Skills 公开合集。
+OpenClaw 原生「联网访问入口」基础技能：统一 WebSearch / WebFetch / Browser 三种通道的选择与降级策略。
 
-把日常高频用到的能力封装成 skill，让 Claude Code 开箱即用。
+目标：**全局一致、最小权限、零外置依赖**（不需要 agent-browser / 不直接 kill 系统 Chrome）。
 
----
+## 适用场景
 
-## Skills
+- 搜索信息、查资料
+- 读取网页内容（已知 URL）
+- 访问动态渲染页面（SPA）
+- 需要登录后操作
+- 网页点击/填表
+- 社交媒体/内容平台的浏览与抓取（优先走 Browser）
 
-| Skill | 简介 | 触发方式 |
-|-------|------|---------|
-| [daily-news](./daily-news) | 每日资讯日报生成器 | `/daily-news` |
-| [web-access](./web-access) | Claude Code 版本：agent-browser/CDP 持久化登录 | 自动触发 |
-| [openclaw-web-access](./openclaw-web-access) | OpenClaw 版本：对齐 web_search/web_fetch/browser（不 kill 系统 Chrome） | 自动触发 |
+## 通道选择（OpenClaw 工具体系）
 
----
+1) **搜索技能（技能树）**：作为搜索入口（例如 Exa/free 搜索 skill）；当 `web_search` 后端不可用时，应自动降级到该搜索 skill 或直接访问一手来源 URL。
 
-## daily-news
+2) **`web_fetch`**：已知 URL 的静态公开页面（低成本、快）。
 
-三阶段工作流：获取元数据 → 生成摘要 → 输出日报。支持自定义信源，适合需要每日信息聚合的场景。
+3) **`browser`**：动态渲染/滚动懒加载/登录态/交互操作（点击、输入、选择）。
 
-## web-access
+## 关键行为约束
 
-原始上游（Claude Code）版本：agent-browser/CDP + 独立 Chrome profile 做登录态持久化。
+- **禁止** PID/端口级 kill（例如 `kill -9` / `lsof -ti:9222 | xargs kill`）。
+- 浏览器生命周期只通过 OpenClaw `browser start/stop` 管理：**启动了什么，就只关闭什么**，不影响系统其它进程/用户自己的 Chrome。
 
-## openclaw-web-access（推荐给 OpenClaw 用户）
+## 安装（OpenClaw）
 
-这是本 fork 新增的 OpenClaw 版本：把“联网入口”改写为 **OpenClaw 原生工具** 的通道选择与降级策略：
+把 `openclaw-web-access/` 目录放到 OpenClaw 的 skills 目录即可（以你的部署为准，常见在 `~/.openclaw/workspace/skills/` 或 agent 的 skills 目录）。
 
-1. **搜索技能（技能树）** — 作为搜索入口（例如 Exa/free 搜索 skill；当 `web_search` 后端不可用时自动降级）
-2. **web_fetch** — 已知 URL 的静态公开页面
-3. **browser** — 动态渲染/滚动懒加载/登录后操作/点击填表
-
-关键差异：
-- 不需要安装 `agent-browser`
-- 不做 PID/端口级 kill
-- 浏览器生命周期只通过 OpenClaw `browser start/stop` 管理（只关闭本次启动的隔离实例，不影响系统其它进程）
+> 这是一个“全局基础能力”，建议在 Capability Tree 中作为统一入口引用，避免各 Agent 各自实现联网策略导致行为漂移。
 
 ---
 
-## Installation
-
-### OpenClaw（推荐）
-
-把 `openclaw-web-access/` 放到 OpenClaw 的 skills 目录（以你的部署为准，常见在 `~/.openclaw/workspace/skills/` 或 agent 的 skills 目录）。
-
-> 这是“全局基础能力”，建议在 Capability Tree 中作为统一入口引用，避免各 Agent 各自实现联网策略。
-
-### Claude Code（上游用法，保留）
-
-```bash
-git clone https://github.com/eze-is/eze-skills.git
-
-# 复制需要的 skill 到 Claude Code 目录
-cp -R eze-skills/daily-news ~/.claude/skills/
-cp -R eze-skills/web-access ~/.claude/skills/
-
-# web-access 首次使用需检查依赖
-bash ~/.claude/skills/web-access/scripts/check-deps.sh
-```
-
----
-
-Upstream originally synced from `eze-skills-private` (per upstream README). Fork adds `openclaw-web-access`.
+来源：fork 自 https://github.com/eze-is/eze-skills （web-access 思路改写为 OpenClaw 工具体系版本）
