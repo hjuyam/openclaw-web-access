@@ -71,8 +71,25 @@ agent-browser --cdp 9222 find label "用户名"         # 按关联 label 找输
 agent-browser --cdp 9222 screenshot                 # 截图（viewport）
 agent-browser --cdp 9222 screenshot --full          # 截图（全页面）
 agent-browser --cdp 9222 screenshot -o out.png      # 保存到文件
+agent-browser --cdp 9222 screenshot --annotate      # 注释截图（见下方说明）
 agent-browser --cdp 9222 pdf -o page.pdf            # 导出 PDF
 ```
+
+### annotate 模式
+
+`--annotate` 在截图上叠加编号标签，同时输出对应的 ref 列表，ref 与 `snapshot -i` 共享同一套体系（`@e1`、`@e2`…），截图后立即可用于操作：
+
+```bash
+agent-browser --cdp 9222 screenshot --annotate
+# 输出：[1] @e1 button "Submit"  [2] @e2 link "Home" ...
+agent-browser --cdp 9222 click @e2   # 直接使用
+```
+
+**默认用 `snapshot -i`**。accessibility tree 依赖元素有语义标签（role、name、label），当页面元素缺乏这些语义信息时，snapshot 给出的 ref 可能无法命中或根本不出现。此时用 `--annotate`，它直接从视觉层枚举可见元素，能覆盖 accessibility tree 看不到的情况：
+
+- 纯图标按钮（无文字、无 aria-label）
+- canvas / WebGL 等自定义渲染元素
+- 动态注入、框架渲染导致 accessibility tree 结构异常
 
 ## Cookies & Storage
 
