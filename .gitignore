@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Runtime files
+.workspace_path
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Temp
+*.tmp
+*.zip
