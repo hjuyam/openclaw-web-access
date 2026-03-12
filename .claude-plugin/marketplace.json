@@ -1,0 +1,31 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "eze-skills",
+  "owner": {
+    "name": "一泽Eze",
+    "url": "https://github.com/eze-is"
+  },
+  "description": "Claude Code skills by 一泽Eze. Practical skills for web access, daily news aggregation, and more.",
+  "repository": "https://github.com/eze-is/eze-skills",
+  "metadata": {
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "web-access",
+      "source": "./web-access",
+      "description": "Enhanced web browsing for Claude Code. Handles search, scraping, login flows, and dynamic pages via Playwright. Use for any task requiring real browser interaction.",
+      "version": "1.3.0",
+      "keywords": ["web", "browser", "scraping", "playwright", "search"],
+      "category": "productivity"
+    },
+    {
+      "name": "daily-news",
+      "source": "./daily-news",
+      "description": "Daily news digest generator. Three-stage workflow: fetch sources → summarize → output report. Supports custom RSS feeds, web scraping, and static site publishing.",
+      "version": "2.0.0",
+      "keywords": ["news", "rss", "digest", "automation", "daily"],
+      "category": "productivity"
+    }
+  ]
+}
