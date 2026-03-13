@@ -1,6 +1,6 @@
 ---
 name: openclaw-web-access
-version: 0.3.0
+version: 0.3.2
 author: hjuyam (forked from eze-is/eze-skills)
 license: MIT
 github: https://github.com/hjuyam/openclaw-web-access
@@ -9,7 +9,21 @@ description: |
   目标：全局一致、最小权限、零外置依赖（不需要 agent-browser / 不直接 kill 系统 Chrome）。
 
   触发场景：搜索信息、读取网页内容、访问动态渲染页面、需要登录后操作、网页点击/填表、社交媒体/内容平台抓取。
+triggers:
+  - 搜索
+  - 查资料
+  - 打开网页
+  - 抓取网页
+  - 动态页面
+  - 需要登录
+  - 点按钮/填表
+  - 社交媒体
 changelog:
+  - version: 0.3.2
+    date: 2026-03-13
+    changes:
+      - 增强：加入 TL;DR 作战版、硬禁止项（不碰 cookie/凭据文件）、统一对用户的输出模板
+      - 治理：作为唯一“联网访问入口”技能，承接触发/路由收口
   - version: 0.3.1
     date: 2026-03-10
     changes:
@@ -20,6 +34,24 @@ changelog:
 # openclaw-web-access
 
 > 这是一个**全局基础能力**：用于标准化“联网访问入口”，避免各 Agent 各自实现联网策略导致行为漂移。
+
+## TL;DR（30 秒作战版）
+
+**选通道：**
+- 需要线索/多来源 → `web_search`
+- 已知 URL 且静态 → `web_fetch`
+- SPA/要滚动/要点按钮/要登录 → `browser`
+
+**三条硬规则：**
+1) 信息够用就停（不为“完整”而完整）。
+2) 只要能给出一手来源，就给一手来源。
+3) **绝不 kill 系统 Chrome；绝不读写 cookie/凭据文件。**
+
+## 禁止项（Hard MUST NOT）
+
+- MUST NOT：为了实现浏览器能力去 `kill -9` / 端口级 kill 任何系统 Chrome/Chromium。
+- MUST NOT：读写用户的 cookie/凭据文件（包含但不限于 cookies.json、浏览器 profile）。
+  - 例外：仅当用户明确授权、明确给出文件路径与用途，且能说明风险时才可以；否则一律不做。
 
 ## 浏览哲学（像人一样浏览）
 
@@ -75,8 +107,9 @@ changelog:
 
 **不要**在不可用状态下反复重试 browser 工具（只会持续失败）。
 
-## 输出与可验证性要求
+## 对用户的输出模板（强制）
 
-- 给出一手来源链接（官网/原文/公告）。
-- 简述通道选择原因（1-2 句即可）。
-- 如信息不确定，明确不确定性与下一步验证路径。
+- **通道选择**：我使用了 `<web_search|web_fetch|browser>`，因为 `<原因一句话>`。
+- **一手来源**：<链接1>（必要时 <链接2>）
+- **结论**：<3-7 行，信息密度优先>
+- **不确定性/下一步**（若有）：<如何验证/下一步操作>
