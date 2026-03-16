@@ -7,7 +7,7 @@ description:
   触发场景：用户要求搜索信息、查看网页内容、访问需要登录的网站、操作网页界面、抓取社交媒体内容（小红书、微博、推特等）、读取动态渲染页面、以及任何需要真实浏览器环境的网络任务。
 metadata:
   author: 一泽Eze
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # web-access Skill
@@ -56,19 +56,19 @@ bash ~/.claude/skills/web-access/scripts/check-deps.sh
 | 场景 | 通道 |
 |------|------|
 | 只需搜索摘要或关键词结果，或需要发现信息来源 | **WebSearch** |
-| URL 已知，读取页面内容 | **Jina**（默认）；需要精确 meta / 统计数据时改用 **WebFetch** |
+| URL 已知，读取页面内容 | **Jina**（默认，底层执行 JS 渲染）；需要读取 HTML 源码中的结构化字段（meta、JSON-LD 等）时改用 **WebFetch**（不执行 JS 渲染） |
 | URL 是 PDF | **Jina** |
 | 非公开内容，或已知静态层无效的平台（小红书、微信公众号等公开内容也被反爬限制） | **浏览器 CDP**（直接，跳过静态层） |
 | 需要动态内容、登录态、交互操作，或需要像人一样在浏览器内自由导航探索 | **浏览器 CDP** |
 
 浏览器 CDP 不要求 URL 已知——可从任意入口出发，通过页面内搜索、点击、跳转等方式找到目标内容。
 
-**Jina**：调用方式为 `r.jina.ai/example.com`（URL 前加前缀，不保留原网址 http 前缀）。免费限速 20 RPM，token 消耗很低。
+**Jina**：调用方式为 `r.jina.ai/example.com`（URL 前加前缀，不保留原网址 http 前缀）。限 20 RPM，更节省 AI 上下文。
 底层用 Puppeteer 渲染页面（能处理 JS/SPA），再用 Readability 算法提取主文章内容转为 Markdown，会过滤导航、广告、侧边栏等噪声。适合文章、博客、文档、PDF 等以正文为核心的页面；对视频页、数据面板、商品页等非文章结构页面，可能提取到错误区块。拿到结果后判断内容是否符合任务预期，不符合则切换访问策略。
 
-**WebFetch**：直接获取原始 HTML，不执行 JS。页面中嵌入的完整结构化数据（meta 标签、JSON-LD、data 属性等）完整保留，JS 渲染的内容拿不到。请求时加 header `Accept: text/markdown, text/html`，支持该协议的网站直接返回 Markdown。
+**WebFetch**：直接获取原始 HTML，不执行 JS。meta、JSON-LD 等结构化字段通常由服务端静态嵌入 HTML，WebFetch 可直接读取；若字段由 JS 动态注入，WebFetch 同样拿不到。请求时加 header `Accept: text/markdown, text/html`，支持该协议的网站直接返回 Markdown。
 
-**选择逻辑**：默认用 Jina。但如果任务明确需要精确的结构化字段（播放量、发布时间、OG 标签等藏在 HTML 源码而非页面正文的数据），直接用 WebFetch——这类数据 Jina 拿不到或不可靠。Jina 和 WebFetch 均无法处理时（空内容、403、需登录）→ 升级浏览器层。
+**选择逻辑**：默认用 Jina——Jina 底层执行 JS，能处理动态渲染页面。只有当任务可能需要读取 HTML 源码时，才用 WebFetch。Jina 和 WebFetch 均无法处理时（无法获取所需信息、报错、需登录）→ 升级浏览器层。
 
 
 **降级禁止**：进入更重的通道后，不得回头用轻量工具完成同一目标——等同于重走已知不通的路。浏览器层遇到阻碍应在层内解决（如处理登录），而不是绕回。唯一例外：浏览器操作中衍生的新子目标，可重新选择通道。
